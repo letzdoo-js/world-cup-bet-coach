@@ -1,0 +1,14 @@
+Envoie ça à @BotFather après /setcommands et sélection du bot :
+
+start - 👋 Salut ! On commence ou on reprend
+explore - 🧭 Explorer un sujet (ex: /explore DNS)
+build - 🏗️ Prochaine feature à construire
+whatis - 📡 C'est quoi ? (ex: /whatis API)
+debug - 🔍 Aide au debugging
+code - 📝 Soumettre du code pour review
+progress - 📊 Ma progression
+hint - 💡 Un coup de pouce
+quiz - 🧠 Teste-moi !
+plan - 📋 [Parent] Carte des compétences
+rapport - 📊 [Parent] Rapport de progression
+config - ⚙️ [Parent] Configuration

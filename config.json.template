@@ -1,0 +1,25 @@
+{
+  "providers": {
+    "anthropic": {
+      "apiKey": "REPLACE_ANTHROPIC_API_KEY"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": "claude-sonnet-4-20250514"
+    }
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "token": "REPLACE_TELEGRAM_BOT_TOKEN",
+      "allowFrom": [
+        "REPLACE_STUDENT_TELEGRAM_ID",
+        "REPLACE_PARENT_TELEGRAM_ID"
+      ]
+    }
+  },
+  "webSearch": {
+    "apiKey": "REPLACE_BRAVE_SEARCH_API_KEY"
+  }
+}

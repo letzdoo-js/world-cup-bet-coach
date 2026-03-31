@@ -1,0 +1,3 @@
+[submodule "nanobot"]
+	path = nanobot
+	url = git@github.com:letzdoo-js/world-cup-bet-nanobot.git

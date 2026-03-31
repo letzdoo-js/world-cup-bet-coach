@@ -1,0 +1,498 @@
+{
+  "version": "2.0",
+  "project": {
+    "repo": "https://github.com/letzdoo-js/world-cup-bet",
+    "site": "https://world-cup-bet-five.vercel.app/",
+    "stack": "Python/FastAPI + React + SQLite + Vercel + Railway"
+  },
+  "domains": {
+    "how_computers_work": {
+      "emoji": "🖥️",
+      "label": "Comment marche un ordi",
+      "competencies": {
+        "binary_basics": {
+          "label": "Le binaire — comment l'ordi pense",
+          "level_targets": {
+            "discovered": "Sait que l'ordi pense en 0 et 1",
+            "understood": "Peut convertir un petit nombre en binaire, comprend pourquoi le binaire existe",
+            "applied": "Fait le lien binaire → octets → types Python (int = 4 octets, str = 1 octet par caractère ASCII)",
+            "mastered": "Explique comment un fichier texte, une image ou un son sont stockés en binaire"
+          },
+          "links_to": ["data_types", "file_io"],
+          "discovery_hooks": ["Quand on parle de mémoire, de types de données, de stockage fichiers, de taille de fichier"]
+        },
+        "cpu_memory_disk": {
+          "label": "CPU, mémoire, disque — les organes de l'ordi",
+          "level_targets": {
+            "discovered": "Sait qu'un ordi a un processeur, de la RAM et un disque",
+            "understood": "Comprend la différence RAM (rapide, volatile) vs disque (lent, persistant), et le rôle du CPU",
+            "applied": "Relie à la programmation : variable en RAM, fichier sur disque, programme exécuté par le CPU",
+            "mastered": "Comprend pourquoi un programme qui charge tout en RAM est rapide mais limité, et sait lire un htop"
+          },
+          "links_to": ["os_processes", "variables_types"],
+          "discovery_hooks": ["Quand on parle de performance, de crash mémoire, de sauvegarde, de lenteur"]
+        },
+        "os_processes": {
+          "label": "Le système d'exploitation et les processus",
+          "level_targets": {
+            "discovered": "Sait que Linux/macOS/Windows sont des OS qui gèrent les programmes",
+            "understood": "Comprend qu'un programme = un processus, que l'OS les ordonnance, et que le terminal parle à l'OS",
+            "applied": "Sait utiliser ps, kill, Ctrl+C, comprend pourquoi un serveur est un processus qui tourne en boucle",
+            "mastered": "Comprend les permissions (chmod), les variables d'environnement, et pourquoi Docker isole les processus"
+          },
+          "links_to": ["terminal_basics", "docker_basics", "env_variables"],
+          "discovery_hooks": ["Quand on parle de processus, de permissions, de serveur qui plante, de Docker"]
+        },
+        "file_systems": {
+          "label": "Les fichiers et l'arborescence",
+          "level_targets": {
+            "discovered": "Comprend que tout est fichier/dossier dans un arbre avec une racine /",
+            "understood": "Navigue l'arborescence, comprend chemins absolus vs relatifs, extensions de fichiers",
+            "applied": "Comprend la structure d'un projet (backend/, frontend/, package.json, requirements.txt)",
+            "mastered": "Comprend les liens symboliques, .gitignore, fichiers cachés (.env), et les permissions fichier"
+          },
+          "links_to": ["terminal_basics", "git_basics", "env_variables"],
+          "discovery_hooks": ["Quand on navigue dans le projet, qu'on parle de chemins, de structure de dossiers"]
+        }
+      }
+    },
+    "how_internet_works": {
+      "emoji": "🌐",
+      "label": "Comment marche Internet",
+      "competencies": {
+        "ip_addresses": {
+          "label": "Les adresses IP — le GPS d'Internet",
+          "level_targets": {
+            "discovered": "Sait que chaque machine sur Internet a une adresse IP",
+            "understood": "Comprend IPv4 (4 nombres), localhost = 127.0.0.1, IP publique vs privée",
+            "applied": "Utilise ping pour tester une IP, comprend pourquoi son Codespace a une IP différente de son PC",
+            "mastered": "Comprend NAT, pourquoi son routeur maison a une IP publique partagée, et les plages IP privées"
+          },
+          "links_to": ["dns", "ports", "client_server"],
+          "discovery_hooks": ["Quand on parle de connexion, d'adresses, de localhost, de réseau"]
+        },
+        "dns": {
+          "label": "DNS — l'annuaire d'Internet",
+          "level_targets": {
+            "discovered": "Sait que DNS traduit un nom (google.com) en adresse IP",
+            "understood": "Comprend la chaîne : navigateur → résolveur DNS → serveur racine → IP. Sait utiliser nslookup",
+            "applied": "Comprend pourquoi world-cup-bet.vercel.app pointe vers les serveurs Vercel, et ce qu'est un enregistrement DNS",
+            "mastered": "Comprend TTL, cache DNS, propagation, et pourquoi un changement DNS prend du temps"
+          },
+          "links_to": ["ip_addresses", "http_verbs_status", "deployment_basics"],
+          "discovery_hooks": ["Quand on parle de noms de domaine, de sites web, de déploiement, d'erreurs de résolution"]
+        },
+        "packets_routing": {
+          "label": "Les paquets et le routage — comment les données voyagent",
+          "level_targets": {
+            "discovered": "Sait que les données sont découpées en paquets qui voyagent par différentes routes",
+            "understood": "Comprend que chaque paquet a une source, une destination, et peut prendre un chemin différent. Sait lire un traceroute",
+            "applied": "Comprend pourquoi le ping varie, pourquoi un site loin est plus lent, ce qu'est la latence vs le débit",
+            "mastered": "Comprend TCP vs UDP, pourquoi le streaming utilise UDP et le web utilise TCP, les retransmissions"
+          },
+          "links_to": ["ip_addresses", "http_verbs_status", "https_tls"],
+          "discovery_hooks": ["Quand on parle de lenteur réseau, de ping, de streaming, de connexion instable"]
+        },
+        "http_verbs_status": {
+          "label": "HTTP — le langage du web",
+          "level_targets": {
+            "discovered": "Sait que le navigateur envoie des requêtes HTTP et reçoit des réponses",
+            "understood": "Comprend GET vs POST, les status codes (200, 404, 500), les headers, le body",
+            "applied": "Utilise curl pour faire des requêtes, lit le Network tab des DevTools, comprend les requêtes de World Cup Bet",
+            "mastered": "Comprend PUT/DELETE/PATCH, Content-Type, Authorization headers, CORS, et conçoit des routes d'API RESTful"
+          },
+          "links_to": ["client_server", "fastapi_routes", "json_format"],
+          "discovery_hooks": ["Quand on parle d'API, de requêtes, d'erreurs réseau, de curl, de DevTools"]
+        },
+        "https_tls": {
+          "label": "HTTPS et TLS — la sécurité sur le web",
+          "level_targets": {
+            "discovered": "Sait que HTTPS = HTTP + chiffrement, et que le cadenas dans le navigateur = sécurisé",
+            "understood": "Comprend que TLS chiffre les données entre client et serveur pour que personne ne puisse les lire en transit",
+            "applied": "Comprend pourquoi les mots de passe doivent passer par HTTPS, ce qu'est un certificat SSL",
+            "mastered": "Comprend le handshake TLS, les certificats Let's Encrypt, et pourquoi Vercel/Railway gèrent ça automatiquement"
+          },
+          "links_to": ["http_verbs_status", "deployment_basics"],
+          "discovery_hooks": ["Quand on parle de sécurité, de mots de passe, de données sensibles, de certificats"]
+        },
+        "ports": {
+          "label": "Les ports — les portes d'entrée d'une machine",
+          "level_targets": {
+            "discovered": "Sait que localhost:8000 — le 8000 est un numéro de port",
+            "understood": "Comprend qu'un port = une porte d'entrée pour un service spécifique. 80=HTTP, 443=HTTPS, 8000=dev",
+            "applied": "Sait changer le port de son serveur FastAPI, comprend pourquoi deux serveurs ne peuvent pas utiliser le même port",
+            "mastered": "Comprend le firewall, le port forwarding de Codespaces, et comment Railway expose un port public"
+          },
+          "links_to": ["localhost_vs_remote", "fastapi_routes", "client_server"],
+          "discovery_hooks": ["Quand on lance un serveur, qu'on parle de localhost, d'adresses avec :port"]
+        },
+        "client_server": {
+          "label": "Le modèle client-serveur",
+          "level_targets": {
+            "discovered": "Sait que le navigateur (client) demande et le serveur répond",
+            "understood": "Comprend le cycle requête-réponse, que le serveur tourne en permanence et attend les requêtes",
+            "applied": "Voit son app comme un client React qui parle à un serveur FastAPI, comprend les deux côtés",
+            "mastered": "Comprend les WebSockets (bidirectionnel), les API tierces (son serveur devient client d'une autre API), le SSR"
+          },
+          "links_to": ["http_verbs_status", "fastapi_routes", "deployment_basics"],
+          "discovery_hooks": ["Quand on parle de frontend/backend, d'API, de qui fait quoi dans l'app"]
+        }
+      }
+    },
+    "code": {
+      "emoji": "🐍",
+      "label": "Code Python",
+      "competencies": {
+        "variables_types": {
+          "label": "Variables et types — les briques de base",
+          "level_targets": {
+            "discovered": "Sait qu'une variable stocke une valeur et qu'il y a des types (int, str, float, bool)",
+            "understood": "Comprend la différence entre les types, sait les convertir (int(), str()), comprend les f-strings",
+            "applied": "Utilise les bons types dans son code, gère les conversions, comprend les erreurs de type",
+            "mastered": "Comprend le typage dynamique de Python, les type hints, et None comme absence de valeur"
+          },
+          "links_to": ["binary_basics", "conditionals", "data_structures"],
+          "discovery_hooks": ["Quand on écrit du code, qu'on a une erreur de type, qu'on manipule des données"]
+        },
+        "conditionals": {
+          "label": "Conditions — faire des choix dans le code",
+          "level_targets": {
+            "discovered": "Sait que if/elif/else permet de faire des choix",
+            "understood": "Comprend les opérateurs de comparaison, les booléens, and/or/not",
+            "applied": "Écrit des conditions dans World Cup Bet (ex: si le score est > 3, si le match est terminé)",
+            "mastered": "Utilise les ternaires, les match/case, comprend la différence == vs is"
+          },
+          "links_to": ["variables_types", "loops", "functions"],
+          "discovery_hooks": ["Quand on parle de logique, de choix, de validation de données"]
+        },
+        "loops": {
+          "label": "Boucles — répéter des actions",
+          "level_targets": {
+            "discovered": "Sait que for et while permettent de répéter du code",
+            "understood": "Comprend for x in liste, range(), while avec condition d'arrêt, break/continue",
+            "applied": "Parcourt les équipes, les matchs, les pronostics dans World Cup Bet avec des boucles",
+            "mastered": "Utilise les list comprehensions, enumerate(), zip(), et sait choisir entre for et while"
+          },
+          "links_to": ["data_structures", "conditionals", "functions"],
+          "discovery_hooks": ["Quand on manipule des listes, qu'on veut traiter plusieurs éléments"]
+        },
+        "functions": {
+          "label": "Fonctions — découper et réutiliser",
+          "level_targets": {
+            "discovered": "Sait qu'une fonction est un bloc de code réutilisable avec def",
+            "understood": "Comprend paramètres, return, valeurs par défaut, la portée des variables",
+            "applied": "Écrit des fonctions dans World Cup Bet (calculer_score, verifier_prono, etc.)",
+            "mastered": "Comprend les fonctions comme valeurs, les callbacks, les décorateurs (comme @app.get)"
+          },
+          "links_to": ["fastapi_routes", "error_handling", "imports_modules"],
+          "discovery_hooks": ["Quand on a du code qui se répète, quand on structure un programme"]
+        },
+        "data_structures": {
+          "label": "Listes, dictionnaires, ensembles",
+          "level_targets": {
+            "discovered": "Sait que les listes [] et dictionnaires {} existent pour organiser des données",
+            "understood": "Manipule listes (append, pop, index) et dicts (clés, valeurs, get), comprend la différence",
+            "applied": "Modélise les données de World Cup Bet : liste d'équipes, dict de matchs, classement",
+            "mastered": "Utilise des listes de dicts, des dicts imbriqués, comprend les sets, sait choisir la bonne structure"
+          },
+          "links_to": ["loops", "json_format", "sql_basics"],
+          "discovery_hooks": ["Quand on organise des données, qu'on a besoin de stocker plusieurs éléments"]
+        },
+        "error_handling": {
+          "label": "Gestion des erreurs — try/except et debugging",
+          "level_targets": {
+            "discovered": "Sait lire un message d'erreur Python (traceback) et identifier la ligne fautive",
+            "understood": "Comprend try/except, les types d'erreurs courants (TypeError, KeyError, FileNotFoundError)",
+            "applied": "Gère les erreurs dans World Cup Bet (utilisateur qui entre un mauvais input, fichier manquant)",
+            "mastered": "Crée ses propres exceptions, utilise finally, comprend la pile d'appels et le debugging méthodique"
+          },
+          "links_to": ["functions", "file_io", "fastapi_routes"],
+          "discovery_hooks": ["Quand il y a un bug, un crash, un traceback, une erreur incomprise"]
+        },
+        "imports_modules": {
+          "label": "Imports et modules — utiliser le code des autres",
+          "level_targets": {
+            "discovered": "Sait que import permet d'utiliser du code externe",
+            "understood": "Comprend import vs from...import, les modules standard (json, os, random), les packages pip",
+            "applied": "Importe et utilise des librairies dans World Cup Bet (fastapi, uvicorn, etc.)",
+            "mastered": "Crée ses propres modules, comprend __init__.py, les dépendances et requirements.txt"
+          },
+          "links_to": ["functions", "package_managers", "fastapi_routes"],
+          "discovery_hooks": ["Quand on utilise une librairie, qu'on a un ModuleNotFoundError"]
+        },
+        "classes_objects": {
+          "label": "Classes et objets — modéliser le monde",
+          "level_targets": {
+            "discovered": "Sait qu'une classe est un plan pour créer des objets (comme un moule à gâteau)",
+            "understood": "Comprend __init__, self, attributs et méthodes, créer une instance",
+            "applied": "Modélise des entités World Cup Bet en classes : Equipe, Match, Pronostic, Utilisateur",
+            "mastered": "Comprend l'héritage, les Pydantic models (BaseModel), et pourquoi FastAPI utilise des classes"
+          },
+          "links_to": ["functions", "data_structures", "fastapi_models"],
+          "discovery_hooks": ["Quand on modélise des données complexes, qu'on parle de Pydantic, de BaseModel"]
+        },
+        "fastapi_routes": {
+          "label": "FastAPI — créer des routes d'API",
+          "level_targets": {
+            "discovered": "Sait que @app.get('/teams') crée un endpoint qui répond aux requêtes",
+            "understood": "Comprend les décorateurs de route, les paramètres de chemin, les query params, async def",
+            "applied": "Crée des endpoints pour World Cup Bet : GET /teams, POST /bets, GET /rankings",
+            "mastered": "Gère l'authentification, la validation avec Pydantic, les middlewares, la documentation auto (Swagger)"
+          },
+          "links_to": ["http_verbs_status", "functions", "json_format", "fastapi_models"],
+          "discovery_hooks": ["Quand on construit le backend, qu'on parle d'API, de routes, d'endpoints"]
+        },
+        "fastapi_models": {
+          "label": "Pydantic models — valider les données",
+          "level_targets": {
+            "discovered": "Sait que Pydantic valide automatiquement les données entrantes",
+            "understood": "Crée des BaseModel avec des champs typés, comprend la validation automatique",
+            "applied": "Définit les modèles de World Cup Bet : BetCreate, TeamResponse, UserLogin",
+            "mastered": "Utilise les validateurs custom, Optional, les modèles imbriqués, response_model"
+          },
+          "links_to": ["classes_objects", "fastapi_routes", "json_format"],
+          "discovery_hooks": ["Quand on parle de validation de données, de schéma d'API, de sérialisation"]
+        },
+        "async_basics": {
+          "label": "Async — faire plusieurs choses en même temps",
+          "level_targets": {
+            "discovered": "Sait que async/await permet de ne pas bloquer le programme pendant une attente",
+            "understood": "Comprend pourquoi un serveur web a besoin d'async (servir plusieurs clients), la boucle événementielle",
+            "applied": "Écrit des routes async dans FastAPI, comprend pourquoi les appels DB/API sont await",
+            "mastered": "Comprend asyncio, les tâches concurrentes, la différence parallélisme vs concurrence"
+          },
+          "links_to": ["fastapi_routes", "client_server"],
+          "discovery_hooks": ["Quand on parle de performance serveur, de requêtes simultanées, de await"]
+        }
+      }
+    },
+    "data": {
+      "emoji": "💾",
+      "label": "Données",
+      "competencies": {
+        "json_format": {
+          "label": "JSON — le langage des machines",
+          "level_targets": {
+            "discovered": "Sait que JSON est un format pour stocker et échanger des données structurées",
+            "understood": "Lit et écrit du JSON, comprend objets {}, tableaux [], types (string, number, boolean, null)",
+            "applied": "Utilise json.load/json.dump en Python, comprend pourquoi les API répondent en JSON",
+            "mastered": "Conçoit des structures JSON pour World Cup Bet, comprend JSON vs YAML vs XML"
+          },
+          "links_to": ["data_structures", "http_verbs_status", "file_io"],
+          "discovery_hooks": ["Quand on parle d'API, de données structurées, de configuration, de stockage"]
+        },
+        "file_io": {
+          "label": "Lecture/écriture de fichiers",
+          "level_targets": {
+            "discovered": "Sait qu'un programme peut lire et écrire des fichiers sur le disque",
+            "understood": "Utilise open(), read(), write(), comprend les modes (r, w, a), le with statement",
+            "applied": "Lit/écrit des fichiers JSON et texte dans World Cup Bet pour stocker des données",
+            "mastered": "Comprend les encodages (UTF-8), les chemins relatifs/absolus, les fichiers binaires vs texte"
+          },
+          "links_to": ["json_format", "file_systems", "error_handling"],
+          "discovery_hooks": ["Quand on parle de sauvegarde, de persistance, de lecture de config"]
+        },
+        "sql_basics": {
+          "label": "SQL — parler aux bases de données",
+          "level_targets": {
+            "discovered": "Sait qu'une base de données stocke des données dans des tables (comme un tableur)",
+            "understood": "Comprend SELECT, INSERT, UPDATE, DELETE, WHERE, les tables, les colonnes, les types",
+            "applied": "Écrit des requêtes SQL pour World Cup Bet : chercher des équipes, insérer des paris, calculer un classement",
+            "mastered": "Comprend les JOIN, les index, GROUP BY, et peut concevoir un schéma de base de données"
+          },
+          "links_to": ["data_structures", "data_modeling", "fastapi_routes"],
+          "discovery_hooks": ["Quand on parle de base de données, de stockage persistant, de requêtes"]
+        },
+        "data_modeling": {
+          "label": "Modéliser des données — concevoir un schéma",
+          "level_targets": {
+            "discovered": "Sait qu'il faut réfléchir à comment organiser ses données avant de coder",
+            "understood": "Comprend les entités, les relations (1-à-1, 1-à-N, N-à-N), les clés primaires/étrangères",
+            "applied": "Conçoit le schéma de World Cup Bet : users, teams, matches, bets, rankings",
+            "mastered": "Comprend la normalisation, les compromis (dénormalisation pour la performance), les migrations"
+          },
+          "links_to": ["sql_basics", "classes_objects", "migrations"],
+          "discovery_hooks": ["Quand on conçoit l'app, qu'on parle de relations entre données"]
+        },
+        "migrations": {
+          "label": "Migrations — faire évoluer la base",
+          "level_targets": {
+            "discovered": "Sait que la structure d'une base de données peut changer au fil du temps",
+            "understood": "Comprend qu'une migration = un script qui modifie le schéma (ajouter une colonne, renommer)",
+            "applied": "Applique une migration dans World Cup Bet quand on ajoute une feature",
+            "mastered": "Comprend les migrations up/down, pourquoi on ne modifie jamais une migration déjà appliquée"
+          },
+          "links_to": ["sql_basics", "data_modeling", "deployment_basics"],
+          "discovery_hooks": ["Quand on change le schéma de la DB, qu'on ajoute une feature avec de nouvelles données"]
+        }
+      }
+    },
+    "tools": {
+      "emoji": "🔧",
+      "label": "Outils dev",
+      "competencies": {
+        "terminal_basics": {
+          "label": "Le terminal — parler directement à la machine",
+          "level_targets": {
+            "discovered": "Sait que le terminal permet de contrôler l'ordinateur avec des commandes texte",
+            "understood": "Utilise ls, cd, pwd, cat, echo, mkdir, rm, cp, mv, comprend les chemins",
+            "applied": "Navigue dans le projet, lance des scripts, installe des packages depuis le terminal",
+            "mastered": "Utilise pipe |, redirection >, grep, chmod, comprend $PATH, écrit des mini-scripts bash"
+          },
+          "links_to": ["file_systems", "os_processes", "git_basics"],
+          "discovery_hooks": ["Premier contact avec Codespaces, dès qu'on fait quoi que ce soit en dev"]
+        },
+        "git_basics": {
+          "label": "Git — sauvegarder et partager son code",
+          "level_targets": {
+            "discovered": "Sait que Git garde l'historique de toutes les modifications du code",
+            "understood": "Comprend add → commit → push, sait lire git status et git log",
+            "applied": "Fait des commits réguliers avec des messages clairs dans World Cup Bet",
+            "mastered": "Comprend le staging area, sait revenir en arrière (checkout, revert), lit les diffs"
+          },
+          "links_to": ["terminal_basics", "git_branching", "vscode_codespaces"],
+          "discovery_hooks": ["Quand on écrit du code, qu'on veut sauvegarder, partager, collaborer"]
+        },
+        "git_branching": {
+          "label": "Branches Git — travailler en parallèle",
+          "level_targets": {
+            "discovered": "Sait qu'une branche permet de travailler sur une feature sans toucher au code principal",
+            "understood": "Crée une branche, switch entre branches, comprend main comme branche stable",
+            "applied": "Crée une branche par feature dans World Cup Bet, fait des pull requests",
+            "mastered": "Gère les merge conflicts, comprend rebase vs merge, utilise un workflow Git Flow simplifié"
+          },
+          "links_to": ["git_basics", "ci_cd"],
+          "discovery_hooks": ["Quand on travaille sur une feature, qu'on parle de collaboration, de PR"]
+        },
+        "vscode_codespaces": {
+          "label": "VS Code et Codespaces — l'atelier du dev",
+          "level_targets": {
+            "discovered": "Sait ouvrir et utiliser VS Code (ou Codespaces) pour éditer du code",
+            "understood": "Utilise l'explorateur de fichiers, le terminal intégré, les extensions, la recherche",
+            "applied": "Configure des extensions utiles (Python, Prettier), utilise le debugger basique",
+            "mastered": "Comprend que Codespaces = VM cloud, utilise les raccourcis, les settings, le multi-curseur"
+          },
+          "links_to": ["terminal_basics", "git_basics"],
+          "discovery_hooks": ["Premier setup, quand on parle d'IDE, d'outils de développement"]
+        },
+        "package_managers": {
+          "label": "Gestionnaires de paquets — installer les outils",
+          "level_targets": {
+            "discovered": "Sait que pip/npm installent des librairies créées par d'autres développeurs",
+            "understood": "Utilise pip install, comprend requirements.txt, sait chercher un package sur PyPI",
+            "applied": "Gère les dépendances de World Cup Bet, comprend les versions (fastapi>=0.100)",
+            "mastered": "Comprend les environnements virtuels (venv/uv), le lockfile, les conflits de version"
+          },
+          "links_to": ["imports_modules", "terminal_basics", "deployment_basics"],
+          "discovery_hooks": ["Quand on installe une librairie, qu'on a un ModuleNotFoundError"]
+        },
+        "env_variables": {
+          "label": "Variables d'environnement — les secrets du dev",
+          "level_targets": {
+            "discovered": "Sait que certaines infos (mots de passe, clés API) ne doivent PAS être dans le code",
+            "understood": "Comprend .env, os.getenv(), pourquoi .env est dans .gitignore",
+            "applied": "Configure les variables d'environnement de World Cup Bet (DATABASE_URL, API_KEY)",
+            "mastered": "Comprend les différents environnements (dev/staging/prod), les secrets managers"
+          },
+          "links_to": ["os_processes", "deployment_basics", "file_systems"],
+          "discovery_hooks": ["Quand on parle de sécurité, de configuration, de secrets, de déploiement"]
+        }
+      }
+    },
+    "infra": {
+      "emoji": "🏗️",
+      "label": "Infrastructure",
+      "competencies": {
+        "localhost_vs_remote": {
+          "label": "Local vs distant — où tourne mon code ?",
+          "level_targets": {
+            "discovered": "Sait que son code peut tourner sur son PC (local) ou sur un serveur distant",
+            "understood": "Comprend localhost, que Codespaces est un serveur distant, la différence dev vs production",
+            "applied": "Lance le serveur en local, teste, puis déploie sur Railway/Vercel",
+            "mastered": "Comprend les environnements (dev/staging/prod), les différences de config entre chacun"
+          },
+          "links_to": ["ports", "client_server", "deployment_basics"],
+          "discovery_hooks": ["Quand on lance un serveur, qu'on parle de local vs production"]
+        },
+        "deployment_basics": {
+          "label": "Déploiement — mettre son code en ligne",
+          "level_targets": {
+            "discovered": "Sait que déployer = rendre son app accessible sur Internet",
+            "understood": "Comprend le cycle git push → build → deploy, que Vercel/Railway font ça automatiquement",
+            "applied": "Déploie une modification de World Cup Bet et vérifie qu'elle marche en production",
+            "mastered": "Comprend les builds, les logs de déploiement, le rollback, les health checks"
+          },
+          "links_to": ["git_basics", "ci_cd", "vercel_railway", "dns"],
+          "discovery_hooks": ["Quand on veut montrer son site, qu'on parle de mise en ligne"]
+        },
+        "ci_cd": {
+          "label": "CI/CD — automatiser les tests et le déploiement",
+          "level_targets": {
+            "discovered": "Sait que CI/CD automatise les vérifications et le déploiement à chaque push",
+            "understood": "Comprend : push → tests auto → build → deploy. Si les tests échouent, pas de deploy",
+            "applied": "Lit et comprend un workflow GitHub Actions basique pour World Cup Bet",
+            "mastered": "Crée un workflow CI simple : linter + tests + deploy"
+          },
+          "links_to": ["git_branching", "deployment_basics"],
+          "discovery_hooks": ["Quand on parle d'automatisation, de qualité de code, de GitHub Actions"]
+        },
+        "docker_basics": {
+          "label": "Docker — emballer son app",
+          "level_targets": {
+            "discovered": "Sait que Docker permet d'empaqueter une app avec tout ce dont elle a besoin",
+            "understood": "Comprend image vs conteneur, Dockerfile, que Railway utilise Docker en coulisses",
+            "applied": "Lit et comprend le Dockerfile de World Cup Bet, sait builder et lancer un conteneur",
+            "mastered": "Écrit un Dockerfile, comprend les layers, docker-compose, les volumes"
+          },
+          "links_to": ["os_processes", "deployment_basics", "env_variables"],
+          "discovery_hooks": ["Quand on parle de conteneurs, d'isolation, de 'ça marche sur mon PC mais pas en prod'"]
+        },
+        "vercel_railway": {
+          "label": "Vercel et Railway — les hébergeurs de World Cup Bet",
+          "level_targets": {
+            "discovered": "Sait que Vercel héberge le frontend et Railway le backend de World Cup Bet",
+            "understood": "Comprend le workflow : push GitHub → build automatique → site mis à jour",
+            "applied": "Configure et déploie sur les deux plateformes, lit les logs de build",
+            "mastered": "Gère les variables d'environnement, les domaines custom, les preview deployments"
+          },
+          "links_to": ["deployment_basics", "dns", "env_variables"],
+          "discovery_hooks": ["Quand on parle du projet World Cup Bet, de déploiement, de hosting"]
+        },
+        "logs_monitoring": {
+          "label": "Logs et monitoring — surveiller son app",
+          "level_targets": {
+            "discovered": "Sait que les logs sont les messages que l'app écrit pour dire ce qu'elle fait",
+            "understood": "Comprend print() vs logging, les niveaux (INFO, WARNING, ERROR), lire les logs Railway",
+            "applied": "Ajoute des logs utiles dans World Cup Bet, diagnostique un bug en production via les logs",
+            "mastered": "Comprend le monitoring, les alertes, les métriques (temps de réponse, erreurs/min)"
+          },
+          "links_to": ["error_handling", "deployment_basics"],
+          "discovery_hooks": ["Quand on debugge en production, qu'on parle de ce qui se passe sur le serveur"]
+        }
+      }
+    }
+  },
+  "learning_arc": {
+    "description": "Ordre naturel suggéré — une gravité, pas des rails. Le bot s'en sert pour savoir quoi proposer quand l'élève n'a pas de sujet, mais suit toujours la curiosité en priorité.",
+    "early": [
+      "terminal_basics", "vscode_codespaces", "file_systems",
+      "variables_types", "conditionals",
+      "ip_addresses", "dns", "client_server"
+    ],
+    "mid": [
+      "loops", "functions", "data_structures", "error_handling",
+      "git_basics", "http_verbs_status", "ports",
+      "json_format", "file_io",
+      "cpu_memory_disk", "binary_basics",
+      "localhost_vs_remote", "package_managers"
+    ],
+    "late": [
+      "classes_objects", "imports_modules", "fastapi_routes", "fastapi_models", "async_basics",
+      "sql_basics", "data_modeling", "migrations",
+      "git_branching", "env_variables",
+      "packets_routing", "https_tls",
+      "deployment_basics", "vercel_railway", "ci_cd", "docker_basics",
+      "os_processes", "logs_monitoring"
+    ]
+  }
+}
