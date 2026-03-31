@@ -8,3 +8,5 @@ services:
 
 volumes:
   world-cup-bet-workspace:
+    external: true
+    name: clawbot_world-cup-bet-workspace

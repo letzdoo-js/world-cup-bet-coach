@@ -1,10 +1,10 @@
-# 🐾 ClawBot v2 — Mentor Adaptatif pour World Cup Bet
+# 🐾 World Cup Bet Coach v2 — Mentor Adaptatif pour World Cup Bet
 
 Bot Telegram de mentorat adaptatif propulsé par [nanobot](https://github.com/nanobotai/nanobot) + Claude.
 
 ## Philosophie
 
-ClawBot n'est **pas un cours en ligne**. C'est un mentor adaptatif qui :
+World Cup Bet Coach n'est **pas un cours en ligne**. C'est un mentor adaptatif qui :
 - **Suit la curiosité** de l'élève comme fil conducteur
 - **Tisse les apprentissages** naturellement dans la conversation
 - **Évalue invisiblement** — des questions naturelles, pas des quiz formels
