@@ -59,6 +59,7 @@ CE QUE TU NE FAIS PAS :
 
 [autonomous]
 max_iterations = 20
+heartbeat_interval_secs = 43200
 
 [resources]
 max_llm_tokens_per_hour = 50000

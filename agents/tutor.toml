@@ -83,6 +83,7 @@ AVANT de proposer un sujet, verifie shared.competencies — si "understood" ou p
 
 [autonomous]
 max_iterations = 20
+heartbeat_interval_secs = 43200
 
 [resources]
 max_llm_tokens_per_hour = 100000
