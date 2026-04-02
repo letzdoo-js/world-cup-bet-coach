@@ -9,13 +9,10 @@ services:
     container_name: world-cup-bet-coach
     restart: unless-stopped
     env_file: .env
+    environment:
+      - OPENFANG_HOME=/app
     volumes:
-      - coach-data:/data
-      - ./agents:/data/agents:ro
-      - ./prompts:/data/prompts:ro
-      - ./skills:/data/skills:ro
-      - ./scripts:/data/scripts:ro
-      - ./openfang.toml:/data/openfang.toml:ro
+      - coach-data:/app
     ports:
       - "127.0.0.1:4200:4200"
 
@@ -27,7 +24,7 @@ services:
     restart: unless-stopped
     env_file: .env
     volumes:
-      - coach-data:/data:ro
+      - coach-data:/app:ro
     entrypoint: /bin/sh
     command:
       - -c
@@ -46,10 +43,9 @@ services:
           TMPDIR=$$(mktemp -d)
 
           # Collect OpenFang data files
-          mkdir -p $$TMPDIR/db $$TMPDIR/logs
-          cp /data/*.db $$TMPDIR/db/ 2>/dev/null || true
-          cp /data/*.sqlite $$TMPDIR/db/ 2>/dev/null || true
-          cp /data/logs/*.log $$TMPDIR/logs/ 2>/dev/null || true
+          mkdir -p $$TMPDIR/db
+          cp /app/data/*.db $$TMPDIR/db/ 2>/dev/null || true
+          cp /app/data/*.sqlite $$TMPDIR/db/ 2>/dev/null || true
 
           # Tar + encrypt
           ARCHIVE="$$REPO_DIR/backup-$$STAMP.tar.gz.gpg"
