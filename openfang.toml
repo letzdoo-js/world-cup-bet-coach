@@ -1,0 +1,23 @@
+[project]
+name = "world-cup-bet-coach"
+version = "1.0.0"
+
+[providers.anthropic]
+api_key_env = "ANTHROPIC_API_KEY"
+
+[channels.telegram]
+bot_token_env = "TELEGRAM_BOT_TOKEN"
+allowed_users = ["8685378493", "8233154700"]
+
+# Per-user routing: William -> tutor, Jerome -> parent
+# NOTE: If OpenFang doesn't support [channels.telegram.routing] natively,
+# use default_agent = "tutor" and handle Jerome's routing via allowed_users
+# config on the parent agent, or use a thin routing agent.
+[channels.telegram.routing]
+"8685378493" = "tutor"
+"8233154700" = "parent"
+
+[channels.telegram.overrides]
+output_format = "telegram_html"
+dm_policy = "allowed_only"
+rate_limit_per_user = 10
