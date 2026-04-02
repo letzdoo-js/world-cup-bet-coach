@@ -1,0 +1,20 @@
+name = "tutor"
+version = "1.0.0"
+description = "Coding coach for William — guides World Cup Bet app development"
+author = "jerome"
+module = "builtin:chat"
+tags = ["education", "coding", "mentor"]
+
+[model]
+provider = "anthropic"
+model = "claude-sonnet-4-20250514"
+
+[resources]
+max_llm_tokens_per_hour = 100000
+
+[capabilities]
+tools = ["memory_store", "memory_recall", "file_read"]
+memory_read = ["*"]
+memory_write = ["self.*", "shared.progress", "shared.competencies", "shared.learning_style"]
+agent_spawn = false
+agent_message = []
