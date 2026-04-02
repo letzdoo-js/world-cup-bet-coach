@@ -9,8 +9,12 @@ backup-*/
 # SSH keys
 backup-deploy-key
 backup-deploy-key.pub
+deploy-key
+deploy-key.pub
 
 # OpenFang runtime data
+data/
+repos/
 *.db
 *.sqlite
 logs/

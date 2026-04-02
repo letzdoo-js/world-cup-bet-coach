@@ -11,10 +11,12 @@ services:
     env_file: .env
     environment:
       - OPENFANG_HOME=/app
+    entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
+    command: []
     volumes:
       - coach-data:/app
     ports:
-      - "127.0.0.1:4200:4200"
+      - "4200:4200"
 
   backup:
     build:
