@@ -1,4 +1,23 @@
+# Secrets
+.env
 config.json
+
+# Backups
+backups/
 backup-*/
+
+# SSH keys
+backup-deploy-key
+backup-deploy-key.pub
+
+# OpenFang runtime data
+*.db
+*.sqlite
+logs/
+
+# Python (legacy)
 __pycache__/
 *.pyc
+
+# Nanobot (legacy, will be removed)
+nanobot/

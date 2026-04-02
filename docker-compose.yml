@@ -1,12 +1,75 @@
 services:
-  clawbot:
-    build: .
-    container_name: clawbot
+  coach:
+    image: ghcr.io/rightnow-ai/openfang:latest
+    container_name: world-cup-bet-coach
     restart: unless-stopped
+    env_file: .env
     volumes:
-      - world-cup-bet-workspace:/root/.nanobot/workspace
+      - coach-data:/data
+      - ./agents:/app/agents:ro
+      - ./prompts:/app/prompts:ro
+      - ./skills:/app/skills:ro
+      - ./scripts:/app/scripts:ro
+      - ./openfang.toml:/app/openfang.toml:ro
+    ports:
+      - "127.0.0.1:3000:3000"
+
+  backup:
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
+    container_name: world-cup-bet-backup
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - coach-data:/data:ro
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        # Clone backup repo
+        REPO_DIR=/tmp/backup-repo
+        rm -rf $$REPO_DIR
+        git clone git@github.com:letzdoo-js/world-cup-bet-coach-backup.git $$REPO_DIR 2>/dev/null || {
+          mkdir -p $$REPO_DIR && cd $$REPO_DIR && git init && git remote add origin git@github.com:letzdoo-js/world-cup-bet-coach-backup.git
+        }
+
+        echo "Backup sidecar started — runs daily at 02:00 UTC"
+
+        while true; do
+          STAMP=$$(date +%Y%m%d-%H%M%S)
+          TMPDIR=$$(mktemp -d)
+
+          # Collect OpenFang data files
+          mkdir -p $$TMPDIR/db $$TMPDIR/logs
+          cp /data/*.db $$TMPDIR/db/ 2>/dev/null || true
+          cp /data/*.sqlite $$TMPDIR/db/ 2>/dev/null || true
+          cp /data/logs/*.log $$TMPDIR/logs/ 2>/dev/null || true
+
+          # Tar + encrypt
+          ARCHIVE="$$REPO_DIR/backup-$$STAMP.tar.gz.gpg"
+          tar czf - -C $$TMPDIR . | gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 --passphrase "$$BACKUP_ENCRYPTION_KEY" -o $$ARCHIVE
+          rm -rf $$TMPDIR
+
+          # Keep only last 30 backups in repo
+          cd $$REPO_DIR
+          ls -1t backup-*.tar.gz.gpg 2>/dev/null | tail -n +31 | xargs rm -f 2>/dev/null || true
+
+          # Commit + push
+          git add -A
+          git commit -m "backup $$STAMP" 2>/dev/null && {
+            git push origin main 2>/dev/null \
+              && echo "$$(date) — backup $$STAMP pushed" \
+              || echo "$$(date) — backup $$STAMP push failed"
+          } || echo "$$(date) — nothing new"
+
+          # Sleep until next 02:00 UTC
+          NEXT=$$(date -d "tomorrow 02:00" +%s 2>/dev/null || date -d "02:00" +%s)
+          NOW=$$(date +%s)
+          WAIT=$$((NEXT - NOW))
+          [ $$WAIT -le 0 ] && WAIT=86400
+          sleep $$WAIT
+        done
 
 volumes:
-  world-cup-bet-workspace:
-    external: true
-    name: clawbot_world-cup-bet-workspace
+  coach-data:
