@@ -1,0 +1,19 @@
+name = "router"
+version = "1.0.0"
+description = "Routes Telegram users to their designated agent by user ID"
+author = "jerome"
+module = "builtin:chat"
+tags = ["routing"]
+
+[model]
+provider = "anthropic"
+model = "claude-haiku-4-5-20251001"
+
+[resources]
+max_llm_tokens_per_hour = 10000
+max_iterations = 3
+
+[capabilities]
+tools = ["agent_send"]
+agent_spawn = false
+agent_message = ["tutor", "parent"]
