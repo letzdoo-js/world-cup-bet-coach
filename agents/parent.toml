@@ -1,0 +1,20 @@
+name = "parent"
+version = "1.0.0"
+description = "Jerome's interface — progress reports and pedagogical control"
+author = "jerome"
+module = "builtin:chat"
+tags = ["education", "reporting", "admin"]
+
+[model]
+provider = "anthropic"
+model = "claude-sonnet-4-20250514"
+
+[resources]
+max_llm_tokens_per_hour = 50000
+
+[capabilities]
+tools = ["memory_store", "memory_recall", "file_read"]
+memory_read = ["*"]
+memory_write = ["self.*", "shared.curriculum", "shared.goals"]
+agent_spawn = false
+agent_message = []
