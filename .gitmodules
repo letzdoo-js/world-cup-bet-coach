@@ -1,0 +1,3 @@
+[submodule "openfang"]
+	path = openfang
+	url = git@github.com:letzdoo-js/world-cup-coach-openfang.git

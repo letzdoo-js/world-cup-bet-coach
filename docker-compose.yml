@@ -1,18 +1,23 @@
 services:
   coach:
-    image: ghcr.io/rightnow-ai/openfang:latest
+    build:
+      context: ./openfang
+      dockerfile: Dockerfile
+      args:
+        LTO: "false"
+        CODEGEN_UNITS: "16"
     container_name: world-cup-bet-coach
     restart: unless-stopped
     env_file: .env
     volumes:
       - coach-data:/data
-      - ./agents:/app/agents:ro
-      - ./prompts:/app/prompts:ro
-      - ./skills:/app/skills:ro
-      - ./scripts:/app/scripts:ro
-      - ./openfang.toml:/app/openfang.toml:ro
+      - ./agents:/data/agents:ro
+      - ./prompts:/data/prompts:ro
+      - ./skills:/data/skills:ro
+      - ./scripts:/data/scripts:ro
+      - ./openfang.toml:/data/openfang.toml:ro
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:4200:4200"
 
   backup:
     build:
