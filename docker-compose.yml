@@ -15,8 +15,16 @@ services:
     command: []
     volumes:
       - coach-data:/app
-    ports:
-      - "4200:4200"
+    networks:
+      - default
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wcb-coach.rule=Host(`coach-admin.hive.letzdoo.com`)"
+      - "traefik.http.routers.wcb-coach.entrypoints=websecure"
+      - "traefik.http.routers.wcb-coach.tls.certresolver=letsencrypt"
+      - "traefik.http.services.wcb-coach.loadbalancer.server.port=4200"
+      - "traefik.docker.network=web"
 
   backup:
     build:
@@ -76,3 +84,7 @@ services:
 
 volumes:
   coach-data:
+
+networks:
+  web:
+    external: true
