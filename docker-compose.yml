@@ -21,8 +21,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.wcb-coach.rule=Host(`coach-admin.hive.letzdoo.com`)"
-      - "traefik.http.routers.wcb-coach.entrypoints=websecure"
-      - "traefik.http.routers.wcb-coach.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wcb-coach.entrypoints=web"
       - "traefik.http.services.wcb-coach.loadbalancer.server.port=4200"
       - "traefik.docker.network=web"
 
