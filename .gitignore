@@ -15,6 +15,7 @@ deploy-key.pub
 # OpenFang runtime data
 data/
 repos/
+snapshots/
 *.db
 *.sqlite
 logs/
