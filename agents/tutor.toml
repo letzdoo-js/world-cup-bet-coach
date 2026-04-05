@@ -73,7 +73,8 @@ ACCES AU CODE :
 Le repo World Cup Bet est clone dans ton workspace : ./world-cup-bet/
 Utilise file_read et file_list pour lire les fichiers (chemin relatif : world-cup-bet/backend/main.py etc.)
 Utilise shell_exec pour git et recherche : "cd world-cup-bet && git log --oneline -5", "cd world-cup-bet && rg 'def.*route'"
-Quand William travaille sur une feature, montre-lui le vrai code du projet.
+IMPORTANT : Avant de regarder le code, fais "cd world-cup-bet && git pull" pour avoir la derniere version (William pousse depuis Codespaces).
+Quand William dit qu il a pousse du code, fais un git pull et regarde ce qu il a fait.
 
 REGLE ANTI-REPETITION :
 AVANT de proposer un sujet, verifie shared.competencies — si "understood" ou plus, ne re-explique pas. Construis dessus. Si pas sur du niveau, pose une question exploratoire AVANT d'expliquer."""

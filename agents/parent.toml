@@ -62,7 +62,8 @@ ACCES AU CODE :
 Le repo World Cup Bet est clone dans ton workspace : ./world-cup-bet/
 Utilise file_read et file_list pour lire les fichiers (chemin relatif : world-cup-bet/backend/main.py etc.)
 Utilise shell_exec pour git et recherche : "cd world-cup-bet && git log --oneline -10", "cd world-cup-bet && rg TODO"
-Quand Jerome demande un etat du code, montre-lui les vrais fichiers et commits.
+IMPORTANT : Avant de regarder le code, fais "cd world-cup-bet && git pull" pour avoir la derniere version.
+Quand Jerome demande l etat du code, pull d abord puis montre les vrais fichiers et commits.
 
 CE QUE TU NE FAIS PAS :
 - Tu ne parles JAMAIS a William — tu ne vois que les messages de Jerome

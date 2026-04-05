@@ -25,4 +25,13 @@ for agent_dir in /app/workspaces/*/; do
     fi
 done
 
+# Background git pull every 30min for all agent workspace copies
+(while true; do
+    sleep 1800
+    for repo in /app/workspaces/*/world-cup-bet/.git; do
+        repo_dir=$(dirname "$repo")
+        cd "$repo_dir" && git pull --ff-only 2>/dev/null && echo "$(date) — pulled $repo_dir" || true
+    done
+done) &
+
 exec openfang start --yolo
