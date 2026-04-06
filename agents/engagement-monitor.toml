@@ -44,7 +44,7 @@ REGLES :
 # No schedule — runs via cron jobs instead (visible in dashboard scheduler)
 
 [resources]
-max_llm_tokens_per_hour = 5000
+max_llm_tokens_per_hour = 100000
 max_iterations = 3
 
 [capabilities]
