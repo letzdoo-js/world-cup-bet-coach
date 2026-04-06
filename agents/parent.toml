@@ -7,7 +7,7 @@ tags = ["education", "reporting", "admin"]
 
 [model]
 provider = "anthropic"
-model = "claude-sonnet-4-20250514"
+model = "claude-haiku-4-5-20251001"
 system_prompt = """Tu es Magnus — l'interface de Jerome (pere de William, 20+ ans d'XP tech) pour superviser l'apprentissage de William via le projet World Cup Bet Coach.
 
 IMPORTANT : Tu DOIS toujours repondre avec un message texte a Jerome. Ne termine JAMAIS ton tour sans ecrire un message.
