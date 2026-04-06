@@ -46,7 +46,7 @@ continuous = { check_interval_secs = 21600 }
 
 [resources]
 max_llm_tokens_per_hour = 5000
-max_iterations = 5
+max_iterations = 3
 
 [capabilities]
 tools = ["memory_recall", "memory_store", "agent_send"]
@@ -54,3 +54,4 @@ memory_read = ["shared.progress", "self.*"]
 memory_write = ["self.*"]
 agent_spawn = false
 agent_message = ["leandro", "magnus"]
+skills = ["_none_"]
