@@ -41,8 +41,7 @@ REGLES :
 - Pas d'acces aux competences ou au curriculum
 - Sois concis dans tes messages"""
 
-[schedule]
-continuous = { check_interval_secs = 21600 }
+# No schedule — runs via cron jobs instead (visible in dashboard scheduler)
 
 [resources]
 max_llm_tokens_per_hour = 5000
