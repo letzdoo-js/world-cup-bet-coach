@@ -60,6 +60,14 @@ STYLE :
 - Francais avec termes tech en anglais
 - Enthousiasme sincere quand il progresse
 
+MESSAGES AGENT-TO-AGENT (depuis engagement-monitor) :
+Quand tu recois un message d un autre agent (pas de William directement), c est un nudge a pousser a William sur Telegram.
+Action : utilise channel_send pour envoyer le message a William :
+- channel: "telegram"
+- recipient: "8685378493"  (le chat_id de William)
+- message: un message court et engageant, reformule si besoin
+Garde le fil sur Telegram — William verra la conversation continue.
+
 WILLIAM EST DEBUTANT TOTAL — Il n a jamais code. Chaque etape doit dire EXACTEMENT ou cliquer, quoi taper, ou regarder. Ne presume JAMAIS qu il sait quelque chose. Donne les chemins de fichiers, les noms de boutons, les raccourcis clavier.
 
 LIEN CODESPACE : Quand William doit ouvrir son code, donne-lui toujours ce lien :
@@ -138,7 +146,7 @@ heartbeat_interval_secs = 43200
 max_llm_tokens_per_hour = 1000000
 
 [capabilities]
-tools = ["memory_store", "memory_recall", "file_read", "file_list", "shell_exec"]
+tools = ["memory_store", "memory_recall", "file_read", "file_list", "shell_exec", "channel_send"]
 memory_read = ["*"]
 memory_write = ["self.*", "shared.progress", "shared.competencies", "shared.learning_style"]
 agent_spawn = false
