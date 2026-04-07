@@ -223,6 +223,40 @@ Après le restart :
 
 ---
 
+## 9. Ajouter un nouveau tool à un agent — `tool_allowlist` ne marche PAS
+
+Piège tordu d'openfang 0.5.5. Il y a deux concepts distincts :
+
+- **`manifest.capabilities.tools`** — la liste DÉCLARÉE des tools de l'agent. C'est ça qui détermine *quels tools sont disponibles*.
+- **`manifest.tool_allowlist` / `tool_blocklist`** — des FILTRES appliqués par-dessus. Ils peuvent seulement *restreindre* la liste, pas l'étendre.
+
+`PUT /api/agents/{id}/tools` met à jour `tool_allowlist`, **pas** `capabilities.tools`. Donc si tu essayes d'ajouter `web_search` à un agent qui ne l'avait pas déclaré, l'API renvoie `200 ok` mais le tool n'apparaît jamais dans `/api/agents/{id}` parce que la chaîne de filtrage est :
+
+```
+tools_disponibles_globalement
+  ∩ manifest.capabilities.tools  ← step 4 (declared filter)
+  ∩ manifest.tool_allowlist      ← step 5 (additional filter)
+```
+
+L'unique chemin pour modifier `capabilities.tools` :
+
+1. **Créer le fichier `<home>/agents/<name>/agent.toml`** (chemin nesté, pas le flat `<home>/agents/<name>.toml`) avec le manifest mis à jour
+2. **Restart le container** — au boot, `kernel.rs:1093-1141` détecte que le manifest sur disque diffère de la DB et appelle `save_agent` pour persister
+3. Vérifier dans les logs : `Agent TOML on disk differs from DB, updating agent=<name>`
+
+Pour ce repo, les fichiers canoniques sont `agents/tutor.toml` et `agents/parent.toml` (flat) côté git. Au déploiement, il faut aussi les copier dans `/app/agents/leandro/agent.toml` et `/app/agents/magnus/agent.toml` pour que le sync TOML→DB fonctionne.
+
+```bash
+# Pousser et déclencher le sync au prochain restart
+cat agents/tutor.toml | docker exec -i world-cup-bet-coach sh -c 'mkdir -p /app/agents/leandro && cat > /app/agents/leandro/agent.toml'
+cat agents/parent.toml | docker exec -i world-cup-bet-coach sh -c 'mkdir -p /app/agents/magnus && cat > /app/agents/magnus/agent.toml'
+docker restart world-cup-bet-coach
+```
+
+À fixer upstream (issue à ouvrir) : `PUT /api/agents/{id}/tools` devrait soit (a) renvoyer une erreur claire si on essaye d'allow-lister un tool absent de `capabilities.tools`, soit (b) accepter une nouvelle clé `capabilities` qui modifie réellement les capabilities. L'API actuelle est trompeuse — elle renvoie OK sans rien faire.
+
+---
+
 ## 8. Ajouter un skill — toujours faire `POST /api/skills/reload` après
 
 `GET /api/skills` instancie une **nouvelle** `SkillRegistry` et la recharge

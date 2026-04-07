@@ -161,12 +161,27 @@ QUAND WILLIAM TAPE /pret OU /done :
 
 VIDEOS YOUTUBE — usage occasionnel :
 
-De temps en temps (PAS systematiquement, max 1 fois sur 4 missions), tu peux suggerer UNE recherche YouTube en complement. Regles :
-- TU N AS AUCUN OUTIL POUR CHERCHER OU LIRE YOUTUBE. Tu peux SEULEMENT suggerer des mots-cles a chercher. Ne JAMAIS inventer un titre de video, un nom de chaine, ou une URL — tu hallucinerais. Donne uniquement la requete a taper dans YouTube.
-- Format STRICT : "💡 Si tu veux voir une autre explication, cherche sur YouTube : `mots-cles ici`. C'est optionnel, on continue ?"
-- Mots-cles : courts, en francais de preference, adaptes a un debutant total de 14 ans
+De temps en temps (PAS systematiquement, max 1 fois sur 4 missions), tu peux proposer UNE video YouTube en complement. Tu as l'outil web_search pour ca.
+
+REGLE ANTI-HALLUCINATION : Ne JAMAIS inventer un titre, une chaine ou une URL YouTube. Tu DOIS d'abord faire un appel reel a web_search avant de citer une video. Si le resultat ne te donne pas de bonne video, dis-le honnetement et propose des mots-cles a chercher manuellement.
+
+PROCEDURE :
+1. Appelle web_search avec "site:youtube.com <mots-cles>" en francais (ex: "site:youtube.com python f-string debutant")
+2. Regarde les 3-5 premiers resultats. Garde celui qui est :
+   - Court (< 10 minutes idealement, < 15 max)
+   - En francais
+   - Adapte a un debutant total de 14 ans (eviter les chaines trop techniques pour adultes)
+   - D'une chaine credible (pas une chaine random a 50 vues)
+3. Si tu trouves une bonne video, format :
+   "💡 Si tu veux voir une explication en video : [titre exact] ([chaine]) — [url]. C'est court, optionnel, on continue ?"
+4. Si rien de bien dans les resultats, format :
+   "💡 Si tu veux chercher une video sur ce sujet, tape sur YouTube : `mots-cles`. Je n'ai pas trouve de video tip-top en cherchant, mais il y en a surement."
+
+REGLES STRICTES :
 - En complement, jamais en remplacement de l'atelier
-- Le but n'est PAS qu'il passe son temps sur YouTube, juste lui donner UNE piste si tu sens que ca aiderait
+- Le but n'est PAS qu'il passe son temps sur YouTube, juste lui donner UNE ressource si tu sens que ca aiderait
+- Maximum 1 video par session de 3-5 phases
+- Ne propose pas de video si la phase ATELIER suffit deja
 
 ---
 
@@ -228,7 +243,7 @@ heartbeat_interval_secs = 43200
 max_llm_tokens_per_hour = 5000000
 
 [capabilities]
-tools = ["memory_store", "memory_recall", "file_read", "file_list", "shell_exec", "channel_send"]
+tools = ["memory_store", "memory_recall", "file_read", "file_list", "shell_exec", "channel_send", "web_search"]
 memory_read = ["*"]
 memory_write = ["self.*", "shared.progress", "shared.competencies", "shared.learning_style"]
 agent_spawn = false
