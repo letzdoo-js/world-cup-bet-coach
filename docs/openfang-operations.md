@@ -220,3 +220,39 @@ Après le restart :
 - [ ] `curl http://localhost:4200/api/cron/jobs` — vérifier que les 3 jobs sont là
 - [ ] Si vide, recréer via le script (cf §3)
 - [ ] Vérifier que les agents répondent : `docker exec world-cup-bet-coach python3 -c "import urllib.request,json; print([a['name'] for a in json.loads(urllib.request.urlopen('http://localhost:4200/api/agents').read())])"`
+
+---
+
+## 8. Ajouter un skill — toujours faire `POST /api/skills/reload` après
+
+`GET /api/skills` instancie une **nouvelle** `SkillRegistry` et la recharge
+depuis le disque à chaque appel (`routes.rs:3481`). Donc le dashboard
+openfang affiche correctement un skill dès qu'il est ajouté — mais cet
+affichage est trompeur.
+
+Le registre **utilisé par les agents** est `state.kernel.skill_registry`,
+chargé une seule fois au boot (`kernel.rs:765-781`). Les agents font leur
+snapshot à partir de celui-là (`kernel.rs:1826`). Tant qu'il n'est pas
+rechargé, les agents voient l'état figé du démarrage et ne savent pas qu'un
+nouveau skill existe.
+
+**Après tout ajout de skill** (via dashboard, `POST /api/skills/install`,
+ou copie manuelle dans `/app/skills/`) :
+
+```bash
+docker exec world-cup-bet-coach python3 -c "
+import urllib.request
+req = urllib.request.Request('http://127.0.0.1:4200/api/skills/reload',
+    method='POST', data=b'{}', headers={'Content-Type':'application/json'})
+print(urllib.request.urlopen(req).read().decode())
+"
+```
+
+Vérification : envoyer un message à un agent et lui demander s'il voit le
+nouveau skill (`./scripts/send.sh magnus "Tu vois le skill X ?"`).
+
+**Symptôme typique :** "j'ai ajouté un skill mais l'agent dit qu'il ne le
+voit pas". C'est presque toujours ça.
+
+À fixer upstream (issue ouverte sur RightNow-AI/openfang) : le dashboard /
+`POST /api/skills/install` devraient appeler `reload` automatiquement.
