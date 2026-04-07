@@ -17,7 +17,7 @@
 set -euo pipefail
 
 CONTAINER="world-cup-bet-coach"
-COMPOSE_DIR="/home/js/world-cup-bet-coach"
+COMPOSE_DIR="$HOME/world-cup-bet-coach"
 SNAPSHOT_DIR="$COMPOSE_DIR/snapshots"
 
 mkdir -p "$SNAPSHOT_DIR"
@@ -79,12 +79,17 @@ case "$cmd" in
             exit 1
         fi
 
-        # Restore volume contents via a temp container
+        # Restore volume contents via a temp container.
+        # We use `docker cp` (not a bind mount) so this works in docker-in-docker
+        # setups where the host snapshot dir isn't visible to the docker daemon.
         echo "Restoring volume..."
-        docker run --rm \
-            -v "$VOLUME_NAME:/app" \
-            -v "$SNAP/app:/backup:ro" \
-            alpine sh -c "rm -rf /app/* /app/.* 2>/dev/null; cp -a /backup/. /app/"
+        TMP_NAME="snapshot-restore-$$"
+        docker run -d --name "$TMP_NAME" -v "$VOLUME_NAME:/app" alpine sleep 300 >/dev/null
+        trap "docker rm -f $TMP_NAME >/dev/null 2>&1 || true" EXIT
+        docker exec "$TMP_NAME" sh -c 'rm -rf /app/* /app/.[!.]* 2>/dev/null; true'
+        docker cp "$SNAP/app/." "$TMP_NAME:/app/"
+        docker rm -f "$TMP_NAME" >/dev/null
+        trap - EXIT
 
         # Start container
         echo "Starting container..."
