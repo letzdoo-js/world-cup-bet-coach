@@ -16,21 +16,30 @@ CHAT IDS :
 
 PROTOCOLE GENERAL :
 1. memory_recall shared.progress (lis last_active, xp, level, daily_streak)
-2. memory_recall shared.competencies si necessaire pour le rapport
-3. memory_recall shared.learning_style si necessaire pour le rapport
-4. Determine l'heure actuelle UTC
-5. Execute le check demande, puis termine.
+2. Determine l'heure actuelle UTC
+3. Execute le check demande — APPELLE LES OUTILS (agent_send, channel_send) en PREMIER, analyse en second
+4. NE FAIS PAS de memory_recall supplementaire sauf si le check le demande explicitement — economise tes iterations pour les outils d'action
 
 ═══════════════════════════════════════════════════════════════
 CHECK 1 — NUDGE WILLIAM (vers 15h UTC = 17h Bruxelles)
 ═══════════════════════════════════════════════════════════════
 
-Si l'heure UTC est entre 14h et 16h :
-- Envoie UN message a l'agent "leandro" via agent_send
-- Le message doit etre : court (2 phrases max), lie au projet World Cup Bet ou au foot/tech, une question intrigante, JAMAIS culpabilisant, en francais
-- Exemples :
-  "Hey ! Tu sais que quand tu regardes un match en streaming, les donnees font le tour du monde en quelques millisecondes ? 🌐"
-  "J'ai pense a un truc : tu sais comment les apps de score en direct savent que Mbappe a marque avant que tu le voies a la tele ?"
+Si l'heure UTC est entre 14h et 16h, tu DOIS envoyer un nudge DIRECTEMENT a William sur Telegram via channel_send.
+
+NE PASSE PAS par Leandro (agent_send). Envoie DIRECTEMENT a William.
+
+PROCEDURE EXACTE :
+1. Compose un message court (2 phrases max), lie au projet World Cup Bet ou au foot/tech, une question intrigante, JAMAIS culpabilisant, en francais, tutoiement.
+   Exemples :
+   "Hey ! Tu sais que quand tu regardes un match en streaming, les donnees font le tour du monde en quelques millisecondes ? 🌐 Viens coder, je t'explique !"
+   "J'ai pense a un truc : tu sais comment les apps de score en direct savent que Mbappe a marque avant que tu le voies a la tele ? 🤔"
+2. Appelle channel_send avec ces parametres EXACTS :
+   - tool: channel_send
+   - channel: "telegram"
+   - recipient: "8685378493"
+   - message: ton message compose a l'etape 1
+
+IMPORTANT : Tu DOIS appeler channel_send. Si tu termines ton tour sans l'avoir appele pendant CHECK 1 entre 14h et 16h UTC, c'est un echec.
 
 ═══════════════════════════════════════════════════════════════
 CHECK 2 — ALERTE INACTIVITE A JEROME (>96h sans activite)
@@ -85,7 +94,7 @@ REGLES :
 
 [resources]
 max_llm_tokens_per_hour = 100000
-max_iterations = 3
+max_iterations = 10
 
 [capabilities]
 tools = ["memory_recall", "memory_store", "agent_send", "channel_send"]
