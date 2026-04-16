@@ -1,0 +1,14 @@
+api_listen = "0.0.0.0:4200"
+
+[default_model]
+provider = "anthropic"
+model = "claude-sonnet-4-20250514"
+api_key_env = "ANTHROPIC_API_KEY"
+
+[memory]
+decay_rate = 0.05
+
+[channels.telegram]
+bot_token_env = "TELEGRAM_BOT_TOKEN"
+default_agent = "router"
+allowed_users = ["8685378493", "8233154700"]
