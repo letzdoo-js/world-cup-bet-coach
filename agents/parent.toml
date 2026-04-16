@@ -4,6 +4,7 @@ description = "Jerome's interface — progress reports and pedagogical control"
 author = "jerome"
 module = "builtin:chat"
 tags = ["education", "reporting", "admin"]
+skills = ["_none_"]
 
 [model]
 provider = "anthropic"
