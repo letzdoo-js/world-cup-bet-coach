@@ -25,6 +25,52 @@ services:
       - "traefik.http.services.wcb-coach.loadbalancer.server.port=4200"
       - "traefik.docker.network=web"
 
+  compact-cron:
+    image: docker:cli
+    container_name: world-cup-bet-compact-cron
+    restart: unless-stopped
+    environment:
+      - TZ=UTC
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./scripts/compact-all.py:/compact-all.py:ro
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        echo "Compact cron sidecar started — runs daily at 02:30 UTC"
+        echo "Triggers POST /api/agents/{id}/session/compact via docker exec"
+        echo "to invoke openfang's LLM-based compactor (vs the lossy"
+        echo "text-truncation auto-compaction that fires at 100 messages)."
+
+        # Target: 02:30 UTC = 9000 seconds-of-day
+        TARGET_SEC=9000
+
+        while true; do
+          # busybox date doesn't support `-d "tomorrow ..."`. Compute the
+          # delay manually from seconds-of-day.
+          NOW_H=$$(date -u +%-H)
+          NOW_M=$$(date -u +%-M)
+          NOW_S=$$(date -u +%-S)
+          # %-H/%-M/%-S strip leading zeros (busybox date supports it).
+          CURRENT_SEC=$$(( NOW_H * 3600 + NOW_M * 60 + NOW_S ))
+          if [ $$CURRENT_SEC -lt $$TARGET_SEC ]; then
+            WAIT=$$(( TARGET_SEC - CURRENT_SEC ))
+          else
+            WAIT=$$(( 86400 - CURRENT_SEC + TARGET_SEC ))
+          fi
+          echo "$$(date -u +%Y-%m-%dT%H:%M:%SZ) — sleeping $${WAIT}s until next 02:30 UTC"
+          sleep $$WAIT
+
+          echo "$$(date -u +%Y-%m-%dT%H:%M:%SZ) — running compact-all"
+          # Push current script into coach (in case scripts/compact-all.py
+          # was updated) then exec it. Loopback inside the container = no
+          # API key needed.
+          docker cp /compact-all.py world-cup-bet-coach:/app/compact-all.py
+          docker exec world-cup-bet-coach python3 /app/compact-all.py || \
+            echo "$$(date -u +%Y-%m-%dT%H:%M:%SZ) — compact-all returned non-zero"
+        done
+
   backup:
     build:
       context: .
