@@ -72,17 +72,60 @@ for k in ['shared.progress','shared.competencies','shared.learning_style']:
 
 ## Mettre à jour un prompt d'agent (le bon pattern)
 
-**JAMAIS** : éditer `agents/*.toml` puis `docker restart`. Trois raisons : (1) `/app` est un volume, le restart ne lit pas le host, (2) les agents sont chargés depuis SQLite pas depuis le `.toml`, (3) le restart wipe les cron jobs.
+**Pour modifier UNIQUEMENT le `system_prompt`** : `PATCH /api/agents/{id}` avec `{"system_prompt": "..."}`. Hot-reload, persisté en SQLite, pas de restart. Voir `docs/openfang-operations.md` §2 pour le snippet Python.
 
-**TOUJOURS** : `PATCH /api/agents/{id}` avec `{"system_prompt": "..."}`. Hot-reload, persisté en SQLite, pas de restart. Voir `docs/openfang-operations.md` §2 pour le snippet Python.
-
-Et après le PATCH, pour pousser proprement le changement aussi dans le fichier source (pour git) :
+Et après le PATCH, pour pousser proprement le changement aussi dans les fichiers source (pour git) :
 ```bash
 cat agents/tutor.toml | docker exec -i world-cup-bet-coach sh -c 'cat > /app/agents/tutor.toml'
-cat agents/tutor.toml | docker exec -i world-cup-bet-coach sh -c 'cat > /app/agents/leandro/agent.toml'
+cat agents/tutor.toml | docker exec -i world-cup-bet-coach sh -c 'mkdir -p /app/agents/leandro && cat > /app/agents/leandro/agent.toml'
 ```
 
 **Les deux chemins existent** : `/app/agents/tutor.toml` (legacy, lu au boot) et `/app/agents/leandro/agent.toml` (nested, lu par le TOML→DB sync). Écrire les deux évite toute désync. Pareil pour parent.toml → magnus/agent.toml, engagement-monitor.toml → engagement-monitor/agent.toml.
+
+## Modifier les capabilities d'un agent (tools, agent_message, memory_*) — TOML + restart
+
+**Aucun endpoint API ne PATCH les capabilities** — ni `patch_agent` ni `patch_agent_config` ne touchent à `capabilities.tools`, `agent_message`, etc. Le seul moyen est TOML + restart, parce qu'au boot `kernel.rs:1235-1262` détecte que le manifest disque diffère de la DB et **mergue automatiquement** les champs `capabilities.tools`, `tool_allowlist`, `tool_blocklist`, etc.
+
+**Documentation complète : `docs/openfang-operations.md` §9.** À lire AVANT de toucher au code Rust pour chercher comment hot-patcher des caps — c'est inutile, suivre la procédure §9 directement.
+
+Procédure (validée 2026-05-27, ajout `agent_send` aux 3 agents) :
+
+```bash
+# 1. Edit agents/parent.toml + agents/tutor.toml + agents/engagement-monitor.toml côté git
+# 2. Push aux 6 paths dans le volume (legacy + nested) :
+cat agents/parent.toml | docker exec -i world-cup-bet-coach sh -c 'cat > /app/agents/parent.toml'
+cat agents/parent.toml | docker exec -i world-cup-bet-coach sh -c 'mkdir -p /app/agents/magnus && cat > /app/agents/magnus/agent.toml'
+# (idem pour tutor.toml→leandro et engagement-monitor.toml)
+
+# 3. Restart — au boot, sync TOML→DB détecte le diff et update
+docker compose restart coach
+sleep 8
+
+# 4. Vérifier dans les logs :
+docker logs world-cup-bet-coach --tail 50 2>&1 | grep "differs from DB"
+# → "Agent TOML on disk differs from DB, updating agent=<name>" ×3
+
+# 5. Réveiller les agents + réactiver les crons :
+./scripts/wake-all.sh
+
+# 6. Vérifier en SQLite (docker cp .db + .db-wal, voir openfang-operations §1)
+```
+
+**Note restart** : depuis notre patch cron-preservation (mergé upstream), `docker compose restart coach` **NE wipe PLUS les cron jobs** — `cron_jobs.json` est persisté et relu au boot. Mais les agents passent souvent en `suspended` au cold boot → d'où `wake-all.sh`. Les sessions Magnus/Leandro/engagement-monitor sont préservées.
+
+## Communication inter-agents (agent_send) — convention de préfixage obligatoire
+
+`agent_send(agent_id, message)` est synchrone : le runtime invoque l'autre agent et renvoie sa réponse texte comme tool_result. **MAIS** : le runtime openfang ne préfixe PAS automatiquement le message avec l'identité de l'expéditeur (cf `kernel.rs:6701` `send_to_agent` qui appelle `send_message(id, message)` avec `sender_id=None, sender_name=None`).
+
+**Conséquence :** sans préfixe, le récepteur ne sait pas qui parle et confond avec un message user. C'est ce qui faisait halluciner Magnus avant le fix du 2026-05-27 — il écrivait "Leandro, fais X" dans son texte de réponse (qui partait à Jerome via Telegram, pas à Leandro) et croyait avoir parlé à Leandro.
+
+**Convention adoptée dans nos prompts** :
+- Magnus : `agent_send(leandro, "[From: Magnus, on behalf of Jerome] <instruction>")`
+- Leandro répondant à Magnus : pas besoin d'agent_send — la réponse texte normale remonte comme tool_result
+- Leandro initiant un appel : `agent_send(magnus, "[From: Leandro] <message>")`
+- Tous les agents ont `agent_send` + `agent_list` dans `tools`, et `agent_message = ["*"]` (cf 2026-05-27 capabilities rewire)
+
+**Discrimination côté récepteur** : Leandro lit le préfixe pour distinguer 3 cas — `[From: William Sonnet]`/pas-de-préfixe → user normal, `[From: engagement-monitor]` → nudge à forward via channel_send vers William, `[From: Magnus...]` → instruction de Jerome à exécuter et répondre directement (le retour devient le tool_result d'agent_send côté Magnus).
 
 ## Pièges opérationnels récurrents (lis avant d'intervenir sur les agents)
 

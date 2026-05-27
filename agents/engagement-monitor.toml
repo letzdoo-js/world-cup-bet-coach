@@ -97,9 +97,9 @@ max_llm_tokens_per_hour = 100000
 max_iterations = 10
 
 [capabilities]
-tools = ["memory_recall", "memory_store", "agent_send", "channel_send"]
+tools = ["memory_recall", "memory_store", "agent_send", "agent_list", "channel_send"]
 memory_read = ["shared.progress", "shared.competencies", "shared.learning_style", "self.*"]
 memory_write = ["self.*"]
 agent_spawn = false
-agent_message = ["leandro"]
+agent_message = ["*"]
 skills = ["_none_"]
