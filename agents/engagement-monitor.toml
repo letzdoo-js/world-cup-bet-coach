@@ -15,10 +15,13 @@ CHAT IDS :
 - William : "8685378493" (les nudges vont a Leandro qui les forwarde a William)
 
 PROTOCOLE GENERAL :
+0. **shell_exec date -u +%Y-%m-%dT%H:%M:%SZ** — OBLIGATOIRE en TOUT PREMIER. C'est l'unique source de verite pour l'heure actuelle. JAMAIS inventer une date, JAMAIS te baser sur un timestamp vu dans la KV pour deviner l'heure courante. Tu n'as pas d'horloge interne, le LLM hallucine si tu ne fais pas ce call.
 1. memory_recall shared.progress (lis last_active, xp, level, daily_streak)
-2. Determine l'heure actuelle UTC
+2. Calcule l'inactivite : (heure obtenue en etape 0) - last_active = N jours/heures
 3. Execute le check demande — APPELLE LES OUTILS (agent_send, channel_send) en PREMIER, analyse en second
 4. NE FAIS PAS de memory_recall supplementaire sauf si le check le demande explicitement — economise tes iterations pour les outils d'action
+
+NOTE SUR LE TEMPS : si tu stockes une date dans la KV (ex: self.last_jerome_alert), tu DOIS utiliser la valeur obtenue a l'etape 0, pas une approximation. Si tu reportes une duree ("William inactif depuis N jours"), tu DOIS la calculer a partir de last_active et de l'heure obtenue a l'etape 0. Toute date dans tes messages doit etre verifiable contre ces deux valeurs.
 
 ═══════════════════════════════════════════════════════════════
 CHECK 1 — NUDGE WILLIAM (vers 15h UTC = 17h Bruxelles)
@@ -42,10 +45,12 @@ PROCEDURE EXACTE :
 IMPORTANT : Tu DOIS appeler channel_send. Si tu termines ton tour sans l'avoir appele pendant CHECK 1 entre 14h et 16h UTC, c'est un echec.
 
 ═══════════════════════════════════════════════════════════════
-CHECK 2 — ALERTE INACTIVITE A JEROME (>96h sans activite)
+CHECK 2 — ALERTE INACTIVITE A JEROME (>96h sans activite) — vs RETOUR DE VACANCES
 ═══════════════════════════════════════════════════════════════
 
-Si last_active est il y a plus de 96h (4 jours) :
+DETECTION DE RETOUR : si shared.progress.last_active est AUJOURD'HUI ou HIER (calcule contre l'heure obtenue a l'etape 0 du protocole), c'est que William a probablement repris recemment apres une absence. Dans ce cas : NE PAS envoyer d'alerte inactivite. A la place, si tu avais une alerte precedente envoyee (self.last_jerome_alert recent), envoie a Jerome (channel_send 8233154700) UNE FOIS un message de type "✅ William est revenu ! Premiere activite enregistree le [last_active]." puis delete self.last_jerome_alert (set a empty string via memory_store).
+
+Sinon (last_active est il y a plus de 96h ET pas un retour recent) :
 1. memory_recall self.last_jerome_alert
 2. Si pas d'alerte envoyee depuis 24h (ou jamais), tu DOIS appeler channel_send DIRECTEMENT vers Jerome :
    - tool: channel_send
@@ -97,9 +102,10 @@ max_llm_tokens_per_hour = 100000
 max_iterations = 10
 
 [capabilities]
-tools = ["memory_recall", "memory_store", "agent_send", "agent_list", "channel_send"]
+tools = ["memory_recall", "memory_store", "agent_send", "agent_list", "channel_send", "shell_exec"]
 memory_read = ["shared.progress", "shared.competencies", "shared.learning_style", "self.*"]
 memory_write = ["self.*"]
 agent_spawn = false
 agent_message = ["*"]
+shell = ["date *"]
 skills = ["_none_"]
