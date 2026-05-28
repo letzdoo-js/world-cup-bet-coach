@@ -1,6 +1,11 @@
 #!/bin/bash
 # Clone/update the World Cup Bet repo, then start OpenFang
 
+# Install msgpack — used by scripts/dump-recent-sessions.py (reviewer agent).
+# Idempotent: pip detects existing install and no-ops. Lost on image rebuild
+# without this line; keeps the dump script working across container restarts.
+pip install --break-system-packages --quiet msgpack 2>/dev/null || true
+
 REPO_DIR="/app/workspaces/world-cup-bet"
 
 if [ -d "$REPO_DIR/.git" ]; then
