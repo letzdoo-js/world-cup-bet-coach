@@ -1,12 +1,137 @@
 services:
-  clawbot:
-    build: .
-    container_name: clawbot
+  coach:
+    build:
+      context: ./openfang
+      dockerfile: Dockerfile
+      args:
+        LTO: "false"
+        CODEGEN_UNITS: "16"
+    container_name: world-cup-bet-coach
     restart: unless-stopped
+    env_file: .env
+    environment:
+      - OPENFANG_HOME=/app
+    entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
+    command: []
     volumes:
-      - world-cup-bet-workspace:/root/.nanobot/workspace
+      - coach-data:/app
+    networks:
+      - default
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wcb-coach.rule=Host(`coach-admin.hive.letzdoo.com`)"
+      - "traefik.http.routers.wcb-coach.entrypoints=web"
+      - "traefik.http.services.wcb-coach.loadbalancer.server.port=4200"
+      - "traefik.docker.network=web"
+
+  compact-cron:
+    image: docker:cli
+    container_name: world-cup-bet-compact-cron
+    restart: unless-stopped
+    environment:
+      - TZ=UTC
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        echo "Compact cron sidecar started — runs daily at 02:30 UTC"
+        echo "Triggers POST /api/agents/{id}/session/compact via docker exec"
+        echo "to invoke openfang's LLM-based compactor (vs the lossy"
+        echo "text-truncation auto-compaction that fires at 100 messages)."
+        echo ""
+        echo "Note: this sidecar runs /app/compact-all.py from inside the"
+        echo "coach container's volume. To propagate a script update, run"
+        echo "./scripts/compact-all.sh once from the host (it docker-cp's"
+        echo "the new version then exec's it). Bind-mounting the script"
+        echo "from the host doesn't work in this setup because the docker"
+        echo "daemon and our shell see different /home filesystems."
+
+        # Target: 02:30 UTC = 9000 seconds-of-day
+        TARGET_SEC=9000
+
+        while true; do
+          # busybox date doesn't support `-d "tomorrow ..."`. Compute the
+          # delay manually from seconds-of-day.
+          NOW_H=$$(date -u +%-H)
+          NOW_M=$$(date -u +%-M)
+          NOW_S=$$(date -u +%-S)
+          # %-H/%-M/%-S strip leading zeros (busybox date supports it).
+          CURRENT_SEC=$$(( NOW_H * 3600 + NOW_M * 60 + NOW_S ))
+          if [ $$CURRENT_SEC -lt $$TARGET_SEC ]; then
+            WAIT=$$(( TARGET_SEC - CURRENT_SEC ))
+          else
+            WAIT=$$(( 86400 - CURRENT_SEC + TARGET_SEC ))
+          fi
+          echo "$$(date -u +%Y-%m-%dT%H:%M:%SZ) — sleeping $${WAIT}s until next 02:30 UTC"
+          sleep $$WAIT
+
+          echo "$$(date -u +%Y-%m-%dT%H:%M:%SZ) — running compact-all"
+          docker exec world-cup-bet-coach python3 /app/compact-all.py || \
+            echo "$$(date -u +%Y-%m-%dT%H:%M:%SZ) — compact-all returned non-zero"
+        done
+
+  backup:
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
+    container_name: world-cup-bet-backup
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - coach-data:/app:ro
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        # Clone backup repo
+        REPO_DIR=/tmp/backup-repo
+        rm -rf $$REPO_DIR
+        git clone git@github.com:letzdoo-js/world-cup-bet-coach-backup.git $$REPO_DIR 2>/dev/null || {
+          mkdir -p $$REPO_DIR && cd $$REPO_DIR && git init && git remote add origin git@github.com:letzdoo-js/world-cup-bet-coach-backup.git
+        }
+
+        echo "Backup sidecar started — runs daily at 02:00 UTC"
+
+        while true; do
+          STAMP=$$(date +%Y%m%d-%H%M%S)
+          TMPDIR=$$(mktemp -d)
+
+          # Collect OpenFang data files
+          mkdir -p $$TMPDIR/db
+          cp /app/data/*.db $$TMPDIR/db/ 2>/dev/null || true
+          cp /app/data/*.sqlite $$TMPDIR/db/ 2>/dev/null || true
+
+          # Tar + encrypt
+          ARCHIVE="$$REPO_DIR/backup-$$STAMP.tar.gz.gpg"
+          tar czf - -C $$TMPDIR . | gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 --passphrase "$$BACKUP_ENCRYPTION_KEY" -o $$ARCHIVE
+          rm -rf $$TMPDIR
+
+          # Keep only last 30 backups in repo
+          cd $$REPO_DIR
+          ls -1t backup-*.tar.gz.gpg 2>/dev/null | tail -n +31 | xargs rm -f 2>/dev/null || true
+
+          # Commit + push
+          git add -A
+          git commit -m "backup $$STAMP" 2>/dev/null && {
+            git push origin main 2>/dev/null \
+              && echo "$$(date) — backup $$STAMP pushed" \
+              || echo "$$(date) — backup $$STAMP push failed"
+          } || echo "$$(date) — nothing new"
+
+          # Sleep until next 02:00 UTC
+          NEXT=$$(date -d "tomorrow 02:00" +%s 2>/dev/null || date -d "02:00" +%s)
+          NOW=$$(date +%s)
+          WAIT=$$((NEXT - NOW))
+          [ $$WAIT -le 0 ] && WAIT=86400
+          sleep $$WAIT
+        done
 
 volumes:
-  world-cup-bet-workspace:
+  coach-data:
+
+networks:
+  web:
     external: true
-    name: clawbot_world-cup-bet-workspace
